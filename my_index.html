@@ -51,13 +51,24 @@
     $(window).on("load",function(){
       $("button").click(start);
     });
+    function turn_card($elm,disp){
+      $elm.animate({
+        left : "+=16px",
+        width : 0
+      },50);
+      $elm.children("img").css("display",disp);
+      $elm.animate({
+        left : "-=16px",
+        width : 32
+      },50);
+    }
     function start(){
       // 変数宣言
       var cards = new Array(),
           colors = ["c","s","d","h"],
           level = parseInt($("#level").val()),
           board = $("#board"),
-          SLEEP = 1000; // 感覚
+          SLEEP = 1000, // 間隔
           cover = $("#cover"),
           set_cover = function(){
             cover.css("z-index",1);
@@ -113,20 +124,13 @@
               left : 0
             })
             .click(function(){ // クリックされた時の処理。ここがミソ
-              var $_this = $(this);
+              var $_this = $(this),
                   number = $_this.attr("data-number"),
                   pair = $_this.attr("data-pair");
-              $_this.animate({
-                left : "+=16px",
-                width : 0
-              },50);
-              $_this.children("img").css("display","none");
-              $_this.animate({
-                left : "-=16px",
-                width : 32
-              },50);
               if(pre_card){
                 pre_card_number = pre_card.attr("data-number");
+                if(pre_card_number == number) return;
+                turn_card($_this,"none");
                 if(pre_card_number == pair){
                   score_ope();
                   lives_ope(1);
@@ -138,27 +142,18 @@
                     },SLEEP,c);
                     pre_card = false;
                   });
-                }else if(pre_card_number == $_this.attr("data-number")){
-                  // 何もしない
                 }else{
                   lives_ope(-1);
                   set_cover();
                   [pre_card,$_this].forEach(function(c){
                     setTimeout(function(c){
-                      c.animate({
-                        left : "+=16px",
-                        width : 0
-                      },50);
-                      c.children("img").css("display","block");
-                      c.animate({
-                        left : "-=16px",
-                        width : 32
-                      },50);
+                      turn_card(c,"block");
                     },SLEEP,c);
                   });
                   pre_card = false;
                 }
               }else{
+                turn_card($_this,"none");
                 pre_card = $_this;
               }
             });
