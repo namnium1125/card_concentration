@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>神経衰弱</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <style>
+    * {
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+    button {
+      position: absolute;
+      left: 40vw;
+      top: 45vh;
+      width: 20vw;
+      height: 10vh;
+      z-index: 1;
+      font-size: 3vh;
+    }
+    #board,#cover {
+      position: absolute;
+      left : calc(50vw - 236px);
+      top : calc(50vh - 128px);
+      width : 472px;
+      height: 276px;
+    }
+    #cover {
+      z-index: -1;
+    }
+    #lives {
+      color: pink;
+      font-size: 32px;
+    }
+    .card {
+      position: relative;
+      margin: 1px;
+      float: left;
+      width: 32px;
+      height: 64px;
+    }
+    img {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    </style>
+    <script>
+    $(window).on("load",function(){
+      $("button").click(start);
+    });
+    function start(){
+      // 変数宣言
+      var cards = new Array(),
+          colors = ["c","s","d","h"],
+          level = parseInt($("#level").val()),
+          board = $("#board"),
+          SLEEP = 1000; // 感覚
+          cover = $("#cover"),
+          set_cover = function(){
+            cover.css("z-index",1);
+            setTimeout(function(){ cover.css("z-index",-1); },SLEEP);
+          },
+          score = $("#score"),
+          score_ope = function(){
+            var s = parseInt(score.html())+1;
+            score.html(s);
+            if(s == level*2){
+              setTimeout(function(){
+                alert("Game Clear!\nscore : "+s);
+                location.reload();
+              },250);
+            }
+          },
+          lives = $("#lives"),
+          lives_ope = function(n){
+            var l = parseInt(lives.attr("data-lives"))+n;
+            lives.attr("data-lives",l);
+            lives.html("");
+            for (var i = 0; i < l; i++) {
+              lives.html(lives.html() + "&hearts;");
+            }
+            if(l < 0){
+              setTimeout(function(){
+                alert("Game Over!\nscore : "+parseInt(score.html()));
+                location.reload();
+              },250);
+            }
+          },
+          pre_card = false;
+      if(level >= 13){
+        level = 13;
+      }else if(level <= 0){
+        level = 1;
+      }
+      lives_ope(level);
+      // カードを配列に入れていく
+      for (var i = 0; i < level; i++) {
+        [[0,1],[1,0],[2,3],[3,2]].forEach(function(n){
+          var card = $("<div><img src='./images/cards_illust3.png' /></div>")
+            .attr({
+              "data-number" : colors[n[0]]+(i+1),
+              "data-pair" : colors[n[1]]+(i+1)
+            })
+            .css({
+              "background-image" : "url('./images/cards_" + colors[n[0]]+(i+1) + ".png')",
+              position : "absolute",
+              width : 32,
+              height : 64,
+              top : 0,
+              left : 0
+            })
+            .click(function(){ // クリックされた時の処理。ここがミソ
+              var $_this = $(this);
+                  number = $_this.attr("data-number"),
+                  pair = $_this.attr("data-pair");
+              $_this.animate({
+                left : "+=16px",
+                width : 0
+              },50);
+              $_this.children("img").css("display","none");
+              $_this.animate({
+                left : "-=16px",
+                width : 32
+              },50);
+              if(pre_card){
+                pre_card_number = pre_card.attr("data-number");
+                if(pre_card_number == pair){
+                  score_ope();
+                  lives_ope(1);
+                  set_cover();
+                  [pre_card,$_this].forEach(function(c){
+                    setTimeout(function(c){
+                      c.off("click");
+                      c.css("visibility","hidden");
+                    },SLEEP,c);
+                    pre_card = false;
+                  });
+                }else if(pre_card_number == $_this.attr("data-number")){
+                  // 何もしない
+                }else{
+                  lives_ope(-1);
+                  set_cover();
+                  [pre_card,$_this].forEach(function(c){
+                    setTimeout(function(c){
+                      c.animate({
+                        left : "+=16px",
+                        width : 0
+                      },50);
+                      c.children("img").css("display","block");
+                      c.animate({
+                        left : "-=16px",
+                        width : 32
+                      },50);
+                    },SLEEP,c);
+                  });
+                  pre_card = false;
+                }
+              }else{
+                pre_card = $_this;
+              }
+            });
+            cards.push(card);
+          });
+      }
+      // Fisher-Yates shuffle
+      for (var i = cards.length-1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i+1)),
+            tmp = cards[i];
+        cards[i] = cards[j];
+        cards[j] = tmp;
+      }
+      // 描写
+      $("button").css("display","none");
+      cards.forEach(function(c){ board.append($("<div>").addClass("card").append(c)); });
+    }
+    </script>
+  </head>
+  <body>
+    <div>
+      level(枚数) : <input type="number" id="level" value="3" max="13" min="1"/> &times; 4
+    </div>
+    <div>
+      score : <span id="score">0</span> pair
+    </div>
+    <div>
+      <span id="lives" data-lives="0"></span>
+    </div>
+    <button>神経衰弱<br />Game Start</button>
+    <div id="board"></div>
+    <div id="cover"></div>
+  </body>
+</html>
