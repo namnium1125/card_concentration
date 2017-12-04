@@ -82,7 +82,7 @@
               setTimeout(function(){
                 alert("Game Clear!\nscore : "+s);
                 location.reload();
-              },250);
+              },SLEEP);
             }
           },
           lives = $("#lives"),
@@ -136,19 +136,23 @@
                   lives_ope(1);
                   set_cover();
                   [pre_card,$_this].forEach(function(c){
-                    setTimeout(function(c){
-                      c.off("click");
-                      c.css("visibility","hidden");
-                    },SLEEP,c);
+                    setTimeout((function(c){
+                      return function(){
+                        c.off("click");
+                        c.css("visibility","hidden");
+                      }
+                    })(c),SLEEP);
                     pre_card = false;
                   });
                 }else{
                   lives_ope(-1);
                   set_cover();
                   [pre_card,$_this].forEach(function(c){
-                    setTimeout(function(c){
-                      turn_card(c,"block");
-                    },SLEEP,c);
+                    setTimeout((function(c){
+                      return function(){
+                        turn_card(c,"block");
+                      }
+                    })(c),SLEEP);
                   });
                   pre_card = false;
                 }

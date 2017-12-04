@@ -1,0 +1,94 @@
+<!-- https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q14182689444
+
+の質問では大変失礼しました。正直に申しますと自分勝手な挑戦をしていました。
+こんな私をお許しください。
+
+質問者様の質問に再挑戦させてください。
+下記コードは上記質問で述べられていた仕様通りに動作するようにいたしました。m(_ _)m
+(なるべくオリジナルを残しつつ、ところどころは変えています。)
+
+どうか、もう一度見ていただけると幸いです。
+
+-->
+
+<html>
+<head><meta charset="utf-8">
+  <title>神経衰弱</title>
+  <style>
+  /*<center>タグは使用非推奨だったはずです。
+    cssで指定しましょう。
+  */
+  body {
+    text-align: center;
+  }
+  </style>
+</head>
+<body>
+  <a href="#" onClick = "turn_card(0);"><img src ="ura.png" ></a>&nbsp;
+  <a href="#" onClick = "turn_card(1);"><img src ="ura.png"></a>&nbsp;
+  <a href="#" onClick = "turn_card(2);"><img src ="ura.png"></a>&nbsp;
+  <a href="#" onClick = "turn_card(3);"><img src ="ura.png"></a>&nbsp;
+  <a href="#" onClick = "turn_card(4);"><img src ="ura.png"></a>&nbsp;<br>
+  <a href="#" onClick = "turn_card(5);"><img src ="ura.png"></a>&nbsp;
+  <a href="#" onClick = "turn_card(6);"><img src ="ura.png"></a>&nbsp;
+  <a href="#" onClick = "turn_card(7);"><img src ="ura.png"></a>&nbsp;
+  <a href="#" onClick = "turn_card(8);"><img src ="ura.png"></a>&nbsp;
+  <a href="#" onClick = "turn_card(9);"><img src ="ura.png"></a>&nbsp;
+
+  <script>
+
+  var cards = new Array(10); // 細かいですが、cardよりはcardsの方がいいと思いますので、変更しました。
+
+  cards[0] = "b1.png";
+  cards[1] = "r5.png";
+  cards[2] = "r4.png";
+  cards[3] = "b3.png";
+  cards[4] = "r1.png";
+  cards[5] = "b5.png";
+  cards[6] = "b2.png";
+  cards[7] = "r3.png";
+  cards[8] = "b4.png";
+  cards[9] = "r2.png";
+
+  var number = new Array(1, 5, 4, 3, 1, 5, 2, 3, 4, 2); //カードのナンバー
+  // var ura_omote = new Array(10); //裏表のフラグ 0を個数分書く必要はないです。また不要です。
+  var times = 0; //めくった回数
+  // var omote_num = new Array ( 10, 10 ); //めくったカードの位置
+  var first_pos = -1; // 1枚目の位置だけで構いませんので、配列化する必要ありません。-1は選択していない状態とします。
+
+  var opened_pos = Array(); // ペアが成立したカードを登録する。
+
+  function turn_card (c) {
+    // ↓すでにペアになったカードをクリックした or 1枚目をクリックした
+    if(opened_pos.indexOf(c) != -1 || first_pos == c){
+      return; // 何もせず関数を抜ける
+    }else if(first_pos == -1){ // 1枚目が空
+      first_pos = c;
+      document.getElementsByTagName("img")[c].src = cards[c]; // 表にする
+    }else{ // 2枚目を選択した
+      document.getElementsByTagName("img")[c].src = cards[c]; // 表にする
+      if(number[first_pos] == number[c]){ // ペアだった
+        opened_pos.push(first_pos,c); // ペアに登録
+      }else{ // 違った
+        setTimeout((function(f,s){
+          return function(){
+            [f,s].forEach(function(c){
+              // 裏返す
+              document.getElementsByTagName("img")[c].src = "ura.png";
+            });
+          }
+        })(first_pos,c),500);
+      }
+      first_pos = -1; // 1枚目を空に
+    }
+    times++; // カウント
+  }
+
+  </script>
+
+</body>
+</html>
+
+<!-- おまけ
+
+-->
